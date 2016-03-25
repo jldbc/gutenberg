@@ -33,11 +33,11 @@ def preprocessing():
     save global word dict after finished looping through docs
     '''
     counter = 0
-    for book in os.listdir(os.getcwd() + "/txt"):
+    for book in os.listdir("/Users/jamesledoux/Documents/txt_small"):
         book = str(book)
         counter += 1
         punct_string = ""
-        with open("txt/" + book, 'rb') as f:
+        with open("/Users/jamesledoux/Documents/txt_small/" + book, 'rb') as f:
             content = f.read().rstrip('\n')
         punct_string = punct_string.join(x for x in content if x in punct)
         content = content.translate(table, string.punctuation)

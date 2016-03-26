@@ -4,7 +4,7 @@ from nltk.sentiment import SentimentAnalyzer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.sentiment.util import *
 import numpy as np
-import string
+#import string
 import os
 
 
@@ -41,7 +41,6 @@ all_words_neg = sentim_analyzer.all_words([mark_negation(doc) for doc in trainin
 
 
 unigram_feats = sentim_analyzer.unigram_word_feats(all_words_neg, min_freq=4)
-len(unigram_feats)
 sentim_analyzer.add_feat_extractor(extract_unigram_feats, unigrams=unigram_feats)
 
 training_set = sentim_analyzer.apply_features(training_docs)
@@ -50,8 +49,6 @@ test_set = sentim_analyzer.apply_features(testing_docs)
 trainer = NaiveBayesClassifier.train
 classifier = sentim_analyzer.train(trainer, training_set)
 
-#for key,value in sorted(sentim_analyzer.evaluate(test_set).items()):
-#     print('{0}: {1}'.format(key, value))
 print "model trained. . ."
 
 counter = 0
@@ -59,9 +56,6 @@ for book in os.listdir("/Users/jamesledoux/Documents/txt_small"):
     counter += 1
     with open("/Users/jamesledoux/Documents/txt_small/" + book, 'rb') as f:
         content = f.read().splitlines()
-
-    table = string.maketrans("","")
-    punct = set(['\n', '\r', '!', '/n', '#', '"', '%', '$', '&', ')', '(', '+', '*', '-', ',', '/', '.', ';', ':', '=', '<', '?', '>', '@', '[', ']', '\\', '_', '^', '`', '{', '}', '|', '~'])
 
     sid = SentimentIntensityAnalyzer()
     booksent = []

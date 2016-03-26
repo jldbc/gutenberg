@@ -61,10 +61,10 @@ def preprocessing():
     save global word dict after finished looping through docs
     '''
     counter = 0
-    for book in os.listdir("/Users/aniketsaoji/Desktop/txt_small"):
+    for book in os.listdir("/Users/jamesledoux/Documents/txt_small"):
         counter += 1
         book = str(book)
-        with open("/Users/aniketsaoji/Desktop/txt_small/" + book, 'rb') as f:
+        with open("/Users/jamesledoux/Documents/txt_small/" + book, 'rb') as f:
             content = f.read().rstrip('\n')
         target.write(book + ", ")
         punctAndWordsInSentence(content)

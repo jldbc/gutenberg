@@ -1,5 +1,5 @@
 # gutenberg
-A Context Based Recommender using Project Gutenbergs entire database of books
+A Content Based Recommender using Project Gutenbergs entire database of books
 
 Team:  
 Aniket Saoji  

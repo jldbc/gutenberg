@@ -129,11 +129,12 @@ class TFIDF():
 		wfRDD = wcRDD.map(lambda (w,(d,a,b)): (w,1)).reduceByKey(operator.add)
 		
 		words_list = wfRDD.collect()
+		unzip1, unzip2 = zip(*words_list)
 		with open("words_to_id.txt", "w") as text_file:
-			for word in words_list:
-				text_file.write(str(word) + '\n')
+			for word in unzip1:
+				text_file.write(str(word.decode('utf-8')) + '\n')
 		#print(wfRDD.collect())
-		
+
 		tfidf = wcRDD.join(wfRDD).map(lambda (w,((d,a,b),c)): ((d,-a/b * np.log(D.value/c),w),1))\
 					 .sortByKey(True).map(lambda ((d,z,w),a): (d,w,-z))
 		self.writeToCSVFile(tfidf.collect())

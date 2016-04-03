@@ -71,7 +71,7 @@ print "wordsSparseVector Count:", wordsSparseVector.count()
 minError = float("inf")
 bestModel = None
 bestK = None
-test_values = [10, 20, 50, 100, 200]
+test_values = [2]
 error_storage = []
 for i in test_values:
     model = KMeans.train(wordsSparseVector.values(), i, maxIterations = 20, runs = 10)

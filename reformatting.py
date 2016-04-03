@@ -22,4 +22,5 @@ for row in data:
 with open("output.csv", "wb") as f:
     writer = csv.writer(f)
     writer.writerows(data)
+
 f.close()

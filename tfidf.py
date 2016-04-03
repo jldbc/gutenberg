@@ -105,7 +105,7 @@ class TFIDF():
 	def writeToCSVFile(self,rdd):
 		with open(self.output + '/tfidf-scores.csv','wb') as csvfile:
 			writer = csv.writer(csvfile)
-			writer.writerow(['docID','word','score'])
+			#writer.writerow(['docID','word','score'])
 			writer.writerows(rdd)
 
 

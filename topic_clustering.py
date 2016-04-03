@@ -21,12 +21,14 @@ make a matrix:    cols words, rows Books
 if(len(sys.argv) != 2):
     print "usage: /sparkPath/bin/spark-submit  name.py  movieDirectory"
 
-conf = SparkConf().setAppName("KMeans TF-IDF")
+conf = SparkConf().setAppName("KMeans TF-IDF").set("spark.executor.memory", "15g")
 #sc = SparkContext(conf)
 HomeDir = sys.argv[1]   # passed as argument
 #HomeDir = "/Users/jamesledoux/Documents/Big\ Data/movielens/medium/"
 #HomeDir = "/Users/jamesledoux/Documents/BigData/gutenberg/"
-sc =SparkContext()
+sc = SparkContext()
+#SparkContext.setSystemProperty('spark.executor.memory', '4g')
+
 
 def parseWords(line):
     #uid::wordID::rating::timestamp

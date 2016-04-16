@@ -40,7 +40,8 @@ def parseWords(line):
     return long(1000), (int(parts[0]), int(parts[1]), float(parts[2]))
 
 def loadRows(sc, HomeDir):
-    return sc.textFile(join(HomeDir, "output.txt")).map(parseWords)
+    path = "reformat_output_drew.txt"
+    return sc.textFile(join(HomeDir, path)).map(parseWords)
 
 def vectorize(rows, numWords):
     return rows.map(lambda x: (x[0], (x[1], x[2]))).groupByKey().mapValues(lambda x: SparseVector(numWords, x))
@@ -72,7 +73,7 @@ wordsSparseVector = vectorize( rows.values(), numWords)
 #train the model
 #note: we really have no idea what errors would be with this kind of data.
 #Cross validation wouldn't seem to make much sense here. Maybe update this later if we get collaborative data.
-k = 25
+k = 50
 print "training model with " + str(k) + " clusters. . ."
 model = KMeans.train(wordsSparseVector.values(), k, maxIterations = 20, runs = 10)
 

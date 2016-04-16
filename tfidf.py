@@ -158,7 +158,7 @@ class TFIDF():
 		
 		words_list = wfRDD.collect()
 		unzip1, unzip2 = zip(*words_list)
-		with open("words_to_id.txt", "w") as text_file:
+		with open(self.output + "/words_to_id.txt", "w") as text_file:
 			for word in unzip1:
 				text_file.write(str(word.decode('utf-8')) + '\n')
 		#print(wfRDD.collect())

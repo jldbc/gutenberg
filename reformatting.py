@@ -15,11 +15,17 @@ with open(file_name, 'r') as f:
     reader = csv.reader(f)
     data = list(list(row) for row in csv.reader(f, delimiter=',')) #reads csv into a list of lists
 
+titlesList = []
 for row in data:
   #swap book title for book title ID
+  titlesList.append(row[1])
   row[1] = IDs[row[1]]
 
 with open("output.csv", "wb") as f:
+    writer = csv.writer(f)
+    writer.writerows(data)
+
+with open("titleStore.csv", "wb") as f:
     writer = csv.writer(f)
     writer.writerows(data)
 

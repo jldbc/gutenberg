@@ -11,17 +11,13 @@ import sys
 
 """
 kmeans(data, k, ...)
-
 rows
 uid, movid, rating, timestamp
-
 make a matrix:    cols words, rows Books
-
 to run:
 /Users/jamesledoux/spark-1.6.1/bin/spark-submit  /Users/jamesledoux/Documents/BigData/gutenberg/topic_clustering.py  /Users/jamesledoux/Documents/BigData/gutenberg/
 to open the pyspark console
 /Users/jamesledoux/spark-1.6.1/bin/pyspark
-
 """
 if(len(sys.argv) != 2):
     print "usage: /sparkPath/bin/spark-submit  name.py  wordDirectory"
@@ -40,7 +36,7 @@ def parseWords(line):
     return long(1000), (int(parts[0]), int(parts[1]), float(parts[2]))
 
 def loadRows(sc, HomeDir):
-    return sc.textFile(join(HomeDir, "output.txt")).map(parseWords)
+    return sc.textFile(join(HomeDir, "outputscaled.txt")).map(parseWords)
 
 def vectorize(rows, numWords):
     return rows.map(lambda x: (x[0], (x[1], x[2]))).groupByKey().mapValues(lambda x: SparseVector(numWords, x))
@@ -58,7 +54,6 @@ numWords = rows.values().map(lambda x: x[1]).max()+1
 # ntransform into sparse vectors
 """
 represent as sparse vector to save on space
-
 three cols: id, vector size, wordId:TfIdfscore dictionary
 size needed so u know how many zeros are in the sparse matrix
 uid, size of vector, (wordid:score, wordid:score, wordid:score))
@@ -72,7 +67,7 @@ wordsSparseVector = vectorize( rows.values(), numWords)
 #train the model
 #note: we really have no idea what errors would be with this kind of data.
 #Cross validation wouldn't seem to make much sense here. Maybe update this later if we get collaborative data.
-k = 25
+k = 50
 print "training model with " + str(k) + " clusters. . ."
 model = KMeans.train(wordsSparseVector.values(), k, maxIterations = 20, runs = 10)
 

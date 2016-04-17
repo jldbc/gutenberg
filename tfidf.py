@@ -23,8 +23,14 @@ import operator,re,csv,sys
 import numpy as np
 from pyspark.mllib.feature import HashingTF
 from pyspark.mllib.feature import IDF
+from pyspark.mllib.feature import Normalizer
+from pyspark.mllib.linalg import Vectors
+from pyspark.sql import SQLContext
 
 #pyspark command line: /Users/jamesledoux/spark-1.6.1/bin/pyspark
+########################################################################
+# Comman Line (Drew):
+# /Users/drewhoo/spark-1.6.1/bin/spark-submit
 # - - - - - - - - - - - - - - - - - - - - - #
 
 class TextFilter():
@@ -108,6 +114,28 @@ class TFIDF():
 			#writer.writerow(['docID','word','score'])
 			writer.writerows(rdd)
 
+	def normalizeRDD(self, rdd_list):
+		# Input list as List of Lists
+		# Value = list[x][2]
+		#rdd_list = [('ID','word','score'), ('ID2','word2','score2'), ...]
+		maxValue = -10
+		minValue = 100
+		for x in range(len(rdd_list)):
+			score = rdd_list[x][2]
+			if (score > maxValue):
+				maxValue = score
+			if (score < minValue):
+				minValue = score
+		subtractValue = maxValue - minValue
+		print "minValue: ", minValue
+		print "subtractValue: ", subtractValue
+		for x in range(len(rdd_list)):
+			old_score = rdd_list[x][2]
+			new_score = (old_score - minValue) / subtractValue
+			rdd_list[x] = list(rdd_list[x])
+			rdd_list[x][2] = new_score
+			rdd_list[x] = tuple(rdd_list[x])
+		return rdd_list
 
 	def run(self):
 		# Job 1: Word Frequency in Documents.
@@ -130,14 +158,20 @@ class TFIDF():
 		
 		words_list = wfRDD.collect()
 		unzip1, unzip2 = zip(*words_list)
-		with open("words_to_id.txt", "w") as text_file:
+		with open(self.output + "/words_to_id.txt", "w") as text_file:
 			for word in unzip1:
 				text_file.write(str(word.decode('utf-8')) + '\n')
 		#print(wfRDD.collect())
 
 		tfidf = wcRDD.join(wfRDD).map(lambda (w,((d,a,b),c)): ((d,-a/b * np.log(D.value/c),w),1))\
 					 .sortByKey(True).map(lambda ((d,z,w),a): (d,w,-z))
-		self.writeToCSVFile(tfidf.collect())
+		test_collect = tfidf.collect()
+		#test_take = tfidf.take(100)
+		#print(tfidf.collect())
+		#print(type(test_collect))
+		new_rdd_list = self.normalizeRDD(test_collect)
+		self.writeToCSVFile(new_rdd_list)
+		#self.writeToCSVFile(nor.transform(v))
 
 # - - - - - - - - - - - - - - - - - - - - SCRIPT STARTS HERE - - - - - - - - - - - - - - - - - - - - #
 tfRes = TFIDF(sys.argv[1],sys.argv[2])

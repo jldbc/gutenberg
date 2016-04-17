@@ -36,7 +36,12 @@ def parseWords(line):
     return long(1000), (int(parts[0]), int(parts[1]), float(parts[2]))
 
 def loadRows(sc, HomeDir):
+<<<<<<< HEAD
     return sc.textFile(join(HomeDir, "outputscaled.txt")).map(parseWords)
+=======
+    path = "reformat_output_drew.txt"
+    return sc.textFile(join(HomeDir, path)).map(parseWords)
+>>>>>>> cb9cf8953f5337095300ce5fd8ce662f214908dc
 
 def vectorize(rows, numWords):
     return rows.map(lambda x: (x[0], (x[1], x[2]))).groupByKey().mapValues(lambda x: SparseVector(numWords, x))

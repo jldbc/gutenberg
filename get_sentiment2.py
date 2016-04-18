@@ -5,6 +5,7 @@ from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.sentiment.util import *
 from nltk import tokenize
 import numpy as np
+import pandas as pd
 import os
 
 
@@ -54,38 +55,44 @@ classifier = sentim_analyzer.train(trainer, training_set)
 
 print "model trained. . ."
 
+#read previous output file
+path = "/Users/jamesledoux/Documents/BigData/gutenberg/output.txt"
+data = pd.read_csv(path, sep="|")
+data=data.rename(columns = {'book_name ':'book_name'})
+data['sentiment_negative'] = 999999
+data['sentiment_neutral'] = -999999
+data['sentiment_positive'] = -999999
+data['sentiment_compound'] = 0
 counter = 0
 for book in os.listdir("/Users/jamesledoux/Documents/txt_small"):
     counter += 1
-    
     #read file, remove \r and \n's, split by sentence
     with open("/Users/jamesledoux/Documents/txt_small/" + book, 'rb') as f:
         temp = f.read()
-
     temp = temp.replace('\n', '')
     temp = temp.replace('\r', '')
-
     #avoid encoding errors before splitting by sentence
     content = decode_file(temp)
     content = tokenize.sent_tokenize(content)
-
-
     sid = SentimentIntensityAnalyzer()
     booksent = []
     for sentence in content:
         ss = sid.polarity_scores(sentence)
         ssarray = [ss['neg'],ss['neu'],ss['pos'], ss['compound']]
         booksent.append(ssarray)
-
     valuearray = np.array(booksent)
-
     # mean negative, neutral, positive, compound score for all lines in book
     values = np.mean(valuearray, axis=0)
     print " "
     print "Sentiment scores for book " + str(counter) + ": " + str(book)
     print "neg: " + str(values[0]) + "  neu: " + str(values[1]) + "  pos: " + str(values[2]) + "  compound: " + str(values[3])
+    data.loc[data.book_name == book, 'sentiment_negative'] = values[0]
+    data.loc[data.book_name == book, 'sentiment_neutral'] = values[1]
+    data.loc[data.book_name == book, 'sentiment_positive'] = values[2]
+    data.loc[data.book_name == book, 'sentiment_compound'] = values[3]
 
+    #with open("sentiments/" + book[:-4] + ".csv", 'w') as f:
+    #    f.write(str(values[0]) + ", " + str(values[1]) + ", " + str(values[2]) + ", " + str(values[3]))
+    #f.close()
 
-    with open("sentiments/" + book[:-4] + ".csv", 'w') as f:
-        f.write(str(values[0]) + ", " + str(values[1]) + ", " + str(values[2]) + ", " + str(values[2]))
-    f.close()
+data.to_csv('/Users/jamesledoux/Documents/BigData/gutenberg/output.csv')

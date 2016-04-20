@@ -73,17 +73,18 @@ def preprocessing():
     '''
     counter = 0
     for book in os.listdir("/Users/jamesledoux/Documents/txt_small"):
-        counter += 1
-        book = str(book)
-        with open("/Users/jamesledoux/Documents/txt_small/" + book, 'rb') as f:
-            content = f.read().rstrip('\n')
-        target.write(book + "|")
-        punctAndWordsInSentence(content)
-        content = content.translate(table, string.punctuation)
-        content = ensure_unicode(content)
-        content = content.decode("utf-8")
-        content = content.split()
-        target.write('\n')
-        f.close()
-        print "book " + str(counter) + " done: " + book
+        if not book.startswith('.'):    #pass hidden files such as .DS_STORE
+            counter += 1
+            book = str(book)
+            with open("/Users/jamesledoux/Documents/txt_small/" + book, 'rb') as f:
+                content = f.read().rstrip('\n')
+            target.write(book + "|")
+            punctAndWordsInSentence(content)
+            content = content.translate(table, string.punctuation)
+            content = ensure_unicode(content)
+            content = content.decode("utf-8")
+            content = content.split()
+            target.write('\n')
+            f.close()
+            print "book " + str(counter) + " done: " + book
 preprocessing()

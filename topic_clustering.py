@@ -9,11 +9,7 @@ import pandas as pd
 import csv
 import sys
 
-#this commit: weird loadRows issue, add cluster membership to existing output
 """
-kmeans(data, k, ...)
-rows
-uid, movid, rating, timestamp
 make a matrix:    cols words, rows Books
 to run:
 /Users/jamesledoux/spark-1.6.1/bin/spark-submit  /Users/jamesledoux/Documents/BigData/gutenberg/topic_clustering.py  /Users/jamesledoux/Documents/BigData/gutenberg/
@@ -38,7 +34,7 @@ def parseWords(line):
 
 def loadRows(sc, HomeDir):
     #path = "reformat_output_drew.txt"
-    path = "output.txt"
+    path = "tfidf-scores-updated.txt"
     return sc.textFile(join(HomeDir, path)).map(parseWords)
 
 def vectorize(rows, numWords):
@@ -62,14 +58,10 @@ size needed so u know how many zeros are in the sparse matrix
 uid, size of vector, (wordid:score, wordid:score, wordid:score))
 """
 
-
 wordsSparseVector = vectorize( rows.values(), numWords)
 #scaler = StandardScaler(withMean = False, withStd = True).fit(features)  #becomes dense if using withMean. may run out of memory locally
 
-
 #train the model
-#note: we really have no idea what errors would be with this kind of data.
-#Cross validation wouldn't seem to make much sense here. Maybe update this later if we get collaborative data.
 k = 50
 print "training model with " + str(k) + " clusters. . ."
 model = KMeans.train(wordsSparseVector.values(), k, maxIterations = 20, runs = 10)
@@ -87,26 +79,10 @@ for i in books:
     print "book id " + str(i[0]) + " predicted as a member of cluster "  + str(label)
 
 
-
-#probably should make the write destination a command line argument
-#unnecessary to write here just to read again
-"""
-writer2 = csv.writer(open('clusterMembership.csv', 'wb'))
-writer2.writerow('book, cluster')    #col names helpful for adding this to our other output file
-for key, value in clusterDict.items():
-   writer2.writerow([key, value])
-"""
-
-other_data = pd.read_csv("/Users/jamesledoux/Documents/BigData/gutenberg copy/end_output.csv")  #this will probably be called something else for you guys. I had too many things named output earlier
+other_data = pd.read_csv("/Users/jamesledoux/Documents/BigData/gutenberg/output.csv")  #this will probably be called something else for you guys. I had too many things named output earlier
 other_data['cluster_membership'] = -9999
 for key, value in clusterDict.items():
     other_data.loc[other_data.ID == key, 'cluster_membership'] = value
 other_data.to_csv('final_data.csv')
-"""
-clust_membership = pd.read_csv("clusterMembership.csv")
-other_data = pd.read_csv("end_output.csv")  #this will probably be called something else for you guys. I had too many things named output earlier
-other_data['cluster_membership'] = clust_membership['cluster']
-other_data.to_csv('final_data.csv')
-sc.stop()
-"""
+
 sc.stop()

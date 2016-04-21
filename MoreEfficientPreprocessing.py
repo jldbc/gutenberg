@@ -9,12 +9,12 @@ import sys
 #need this or else it throws encoding/decoding errors
 reload(sys)
 sys.setdefaultencoding('utf8')
-punct = set(['!', '/n', '#', '"', '%', '$', '&', ')', '(', '+', '*', '-', ',', '/', '.', ';', ':', '=', '<', '?', '>', '@', '[', ']', '\\', '_', '^', '`', '{', '}', '|', '~'])
+punct = set(['!', '/n', '#', '"', '%', '$', '&', ')', '(', '+', '*', '-', ',', '/', '.', ';', ':', '=', '<', '?', '>', '@', '[', ']', '\\', '_', '^', '`', '{', '}', '~'])
 table = string.maketrans("","")
 target = open("output.txt", 'w')
 
 #check avg sent size
-target.write("book_name | total_words | avg_sentence_size | ! | /n | # | '' | % | $ | & | ')' | ( | + | * | - | , | / | . | ; | : | = | < | ? | > | @ | [ | ] | \ | _ | ^ | ` | { | } | '|' | ~ ")
+target.write("book_name | total_words | avg_sentence_size | ! | /n | # | '' | % | $ | & | ')' | ( | + | * | - | , | / | . | ; | : | = | < | ? | > | @ | [ | ] | \ | _ | ^ | ` | { | } | ~ ")
 target.write('\n')
 
 def ensure_unicode(v):

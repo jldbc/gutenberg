@@ -5,10 +5,11 @@ from os.path import join
 from pyspark.mllib.util import MLUtils
 from pyspark.mllib.feature import StandardScaler
 from pyspark.mllib.linalg import Vectors
+import pandas as pd
 import csv
 import sys
 
-
+#this commit: weird loadRows issue, add cluster membership to existing output
 """
 kmeans(data, k, ...)
 rows
@@ -25,7 +26,7 @@ if(len(sys.argv) != 2):
 conf = SparkConf().setAppName("KMeans TF-IDF").set("spark.executor.memory", "7g")
 HomeDir = sys.argv[1]   # passed as argument
 #HomeDir = "/Users/jamesledoux/Documents/Big\ Data/movielens/medium/"
-#HomeDir = "/Users/jamesledoux/Documents/BigData/gutenberg/"
+#HomeDir = "/Users/jamesledoux/Documents/BigData/gutenberg copy/"
 sc = SparkContext()
 #SparkContext.setSystemProperty('spark.executor.memory', '4g')
 
@@ -36,12 +37,9 @@ def parseWords(line):
     return long(1000), (int(parts[0]), int(parts[1]), float(parts[2]))
 
 def loadRows(sc, HomeDir):
-<<<<<<< HEAD
-    return sc.textFile(join(HomeDir, "outputscaled.txt")).map(parseWords)
-=======
-    path = "reformat_output_drew.txt"
+    #path = "reformat_output_drew.txt"
+    path = "output.txt"
     return sc.textFile(join(HomeDir, path)).map(parseWords)
->>>>>>> cb9cf8953f5337095300ce5fd8ce662f214908dc
 
 def vectorize(rows, numWords):
     return rows.map(lambda x: (x[0], (x[1], x[2]))).groupByKey().mapValues(lambda x: SparseVector(numWords, x))
@@ -91,8 +89,24 @@ for i in books:
 
 
 #probably should make the write destination a command line argument
+#unnecessary to write here just to read again
+"""
 writer2 = csv.writer(open('clusterMembership.csv', 'wb'))
+writer2.writerow('book, cluster')    #col names helpful for adding this to our other output file
 for key, value in clusterDict.items():
    writer2.writerow([key, value])
+"""
 
+other_data = pd.read_csv("/Users/jamesledoux/Documents/BigData/gutenberg copy/end_output.csv")  #this will probably be called something else for you guys. I had too many things named output earlier
+other_data['cluster_membership'] = -9999
+for key, value in clusterDict.items():
+    other_data.loc[other_data.ID == key, 'cluster_membership'] = value
+other_data.to_csv('final_data.csv')
+"""
+clust_membership = pd.read_csv("clusterMembership.csv")
+other_data = pd.read_csv("end_output.csv")  #this will probably be called something else for you guys. I had too many things named output earlier
+other_data['cluster_membership'] = clust_membership['cluster']
+other_data.to_csv('final_data.csv')
+sc.stop()
+"""
 sc.stop()

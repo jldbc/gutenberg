@@ -66,7 +66,6 @@ data['sentiment_compound'] = 0
 counter = 0
 for book in os.listdir("/Users/jamesledoux/Documents/txt_small"):
     if not book.startswith('.'):
-        counter += 1
         #read file, remove \r and \n's, split by sentence
         with open("/Users/jamesledoux/Documents/txt_small/" + book, 'rb') as f:
             temp = f.read()
@@ -91,6 +90,8 @@ for book in os.listdir("/Users/jamesledoux/Documents/txt_small"):
         data.loc[data.book_name == book, 'sentiment_neutral'] = values[1]
         data.loc[data.book_name == book, 'sentiment_positive'] = values[2]
         data.loc[data.book_name == book, 'sentiment_compound'] = values[3]
+        data.loc[data.book_name == book, 'ID'] = counter
+        counter += 1
 
         #with open("sentiments/" + book[:-4] + ".csv", 'w') as f:
         #    f.write(str(values[0]) + ", " + str(values[1]) + ", " + str(values[2]) + ", " + str(values[3]))

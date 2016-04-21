@@ -57,12 +57,13 @@ print "model trained. . ."
 
 #read previous output file
 path = "/Users/jamesledoux/Documents/BigData/gutenberg/output.txt"
-data = pd.read_csv(path, sep="|")
-data=data.rename(columns = {'book_name ':'book_name'})
+data = pd.read_csv(path, sep="|", index_col = False)
+#data=data.rename(columns = {'book_name ':'book_name'})
 data['sentiment_negative'] = 999999
 data['sentiment_neutral'] = -999999
 data['sentiment_positive'] = -999999
 data['sentiment_compound'] = 0
+data['ID'] = -999999
 counter = 0
 for book in os.listdir("/Users/jamesledoux/Documents/txt_small"):
     if not book.startswith('.'):
@@ -91,7 +92,7 @@ for book in os.listdir("/Users/jamesledoux/Documents/txt_small"):
         data.loc[data.book_name == book, 'sentiment_positive'] = values[2]
         data.loc[data.book_name == book, 'sentiment_compound'] = values[3]
         data.loc[data.book_name == book, 'ID'] = counter
-        counter += 1
+        counter = counter + 1
 
         #with open("sentiments/" + book[:-4] + ".csv", 'w') as f:
         #    f.write(str(values[0]) + ", " + str(values[1]) + ", " + str(values[2]) + ", " + str(values[3]))

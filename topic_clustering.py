@@ -34,7 +34,7 @@ def parseWords(line):
 
 def loadRows(sc, HomeDir):
     #path = "reformat_output_drew.txt"
-    path = "tfidf-scores-updated.txt"
+    path = "tfidf-scores.csv"
     return sc.textFile(join(HomeDir, path)).map(parseWords)
 
 def vectorize(rows, numWords):
@@ -62,7 +62,7 @@ wordsSparseVector = vectorize( rows.values(), numWords)
 #scaler = StandardScaler(withMean = False, withStd = True).fit(features)  #becomes dense if using withMean. may run out of memory locally
 
 #train the model
-k = 50
+k = 14
 print "training model with " + str(k) + " clusters. . ."
 model = KMeans.train(wordsSparseVector.values(), k, maxIterations = 20, runs = 10)
 

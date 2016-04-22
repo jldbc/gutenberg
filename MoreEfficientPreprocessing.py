@@ -1,20 +1,28 @@
 from __future__ import division
 from nltk.stem.snowball import *
+from nltk.classify import NaiveBayesClassifier
+from nltk.corpus import subjectivity
+from nltk.sentiment import SentimentAnalyzer
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from nltk.sentiment.util import *
+from nltk import tokenize
+import numpy as np
+import pandas as pd
 import string
-import os
-import pickle
 import csv
 import sys
+import os
+
 
 #need this or else it throws encoding/decoding errors
 reload(sys)
 sys.setdefaultencoding('utf8')
-punct = set(['!', '/n', '#', '"', '%', '$', '&', ')', '(', '+', '*', '-', ',', '/', '.', ';', ':', '=', '<', '?', '>', '@', '[', ']', '\\', '_', '^', '`', '{', '}', '~'])
+punct = set(['!', '#', '"', '%', '$', '&', ')', '(', '+', '*', '-', ',', '/', '.', ';', ':', '=', '<', '?', '>', '@', '[', ']', '\\', '_', '^', '`', '{', '}', '~'])
 table = string.maketrans("","")
 target = open("output.txt", 'w')
 
 #check avg sent size
-target.write("book_name | total_words | avg_sentence_size | ! | /n | # | '' | % | $ | & | ')' | ( | + | * | - | , | / | . | ; | : | = | < | ? | > | @ | [ | ] | \ | _ | ^ | ` | { | } | ~ ")
+target.write("book_name|total_words|avg_sentence_size|!|#|''|%|$|&|')'|(|+|*|-|,|/|.|;|:|=|<|?|>|@|[|]|\|_|^|`|{|}|~|neg|neu|pos|compound|ID")
 target.write('\n')
 
 def ensure_unicode(v):
@@ -63,6 +71,40 @@ def punctAndWordsInSentence(listOfCharacters):
     target.write(s)
 
 
+def decode_file(text):
+    return text.decode('utf-8')
+
+def get_sentiment(temp):
+    #data['sentiment_negative'] = 999999
+    #data['sentiment_neutral'] = -999999
+    #data['sentiment_positive'] = -999999
+    #data['sentiment_compound'] = 0
+    #data['ID'] = -999999
+    temp = temp.replace('\n', '')
+    temp = temp.replace('\r', '')
+    content = decode_file(temp)
+    content = tokenize.sent_tokenize(content)
+    sid = SentimentIntensityAnalyzer()
+    booksent = []
+    for sentence in content:
+        ss = sid.polarity_scores(sentence)
+        ssarray = [ss['neg'],ss['neu'],ss['pos'], ss['compound']]
+        booksent.append(ssarray)
+    valuearray = np.array(booksent)
+    # mean negative, neutral, positive, compound score for all lines in book
+    values = np.mean(valuearray, axis=0)
+    print " "
+    print "Sentiment scores for book " #+ str(counter) + ": " + str(book)
+    print "neg: " + str(values[0]) + "  neu: " + str(values[1]) + "  pos: " + str(values[2]) + "  compound: " + str(values[3])
+    return values
+
+    #with open("sentiments/" + book[:-4] + ".csv", 'w') as f:
+    #    f.write(str(values[0]) + ", " + str(values[1]) + ", " + str(values[2]) + ", " + str(values[3]))
+    #f.close()
+
+    #data.to_csv('/Users/jamesledoux/Documents/BigData/gutenberg/output.csv')
+
+
 def preprocessing():
     '''
     read file as a list of words
@@ -74,17 +116,24 @@ def preprocessing():
     counter = 0
     for book in os.listdir("/Users/jamesledoux/Documents/txt_small"):
         if not book.startswith('.'):    #pass hidden files such as .DS_STORE
-            counter += 1
             book = str(book)
             with open("/Users/jamesledoux/Documents/txt_small/" + book, 'rb') as f:
                 content = f.read().rstrip('\n')
             target.write(book + "|")
             punctAndWordsInSentence(content)
+            sentiment_values = get_sentiment(content)
+            neg = sentiment_values[0]
+            neu = sentiment_values[1]
+            pos = sentiment_values[2]
+            compound = sentiment_values[3]
+            target.write(str(neg) + "|" + str(neu) + "|" + str(pos) + "|" + str(compound) + "|" + str(counter) + "|")
             content = content.translate(table, string.punctuation)
             content = ensure_unicode(content)
             content = content.decode("utf-8")
             content = content.split()
             target.write('\n')
             f.close()
+            counter += 1
             print "book " + str(counter) + " done: " + book
+
 preprocessing()

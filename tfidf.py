@@ -109,7 +109,7 @@ class TFIDF():
 		self.sc = SparkContext(conf=self.conf)
 
 	def writeToCSVFile(self,rdd):
-		with open(self.output + '/tfidf-scores.csv','wb') as csvfile:
+		with open(self.output + '/tfidf-scores-no-ids.csv','wb') as csvfile:
 			writer = csv.writer(csvfile)
 			#writer.writerow(['docID','word','score'])
 			writer.writerows(rdd)
@@ -155,13 +155,21 @@ class TFIDF():
 		D = self.sc.broadcast(len(self.texts))
 		wcRDD = wcRDD.map(lambda ((w,d),(a,b)): (w,(d,a,b)))
 		wfRDD = wcRDD.map(lambda (w,(d,a,b)): (w,1)).reduceByKey(operator.add)
-		
+
 		words_list = wfRDD.collect()
 		unzip1, unzip2 = zip(*words_list)
-		with open(self.output + "/words_to_id.txt", "w") as text_file:
-			for word in unzip1:
-				text_file.write(str(word.decode('utf-8')) + '\n')
-		#print(wfRDD.collect())
+
+		#create word to word id dict
+		lista = []
+		for word in unzip1:
+			lista.append(str(word.decode('utf-8')))
+		lista = sorted(lista)
+
+		IDs = {}
+		j = 0
+		for i in lista:
+		    IDs[i] = j
+		    j = j+1
 
 		tfidf = wcRDD.join(wfRDD).map(lambda (w,((d,a,b),c)): ((d,-a/b * np.log(D.value/c),w),1))\
 					 .sortByKey(True).map(lambda ((d,z,w),a): (d,w,-z))
@@ -172,8 +180,28 @@ class TFIDF():
 		new_rdd_list = self.normalizeRDD(test_collect)
 		self.writeToCSVFile(new_rdd_list)
 		#self.writeToCSVFile(nor.transform(v))
+		return IDs
+
+def reformat(word_to_id_dict):
+
+	file_name = '/Users/jamesledoux/Documents/BigData/gutenberg/TFIDF Output/tfidf-scores-no-ids.csv'
+	#file_name = '/Users/drewhoo/Desktop/Big_Data_Spark/Gutenberg_Branch/tfidf-scores_normalized.csv'
+	with open(file_name, 'r') as f:
+	    reader = csv.reader(f)
+	    data = list(list(row) for row in csv.reader(f, delimiter=',')) #reads csv into a list of lists
+
+	titlesList = []
+	for row in data:
+	  #swap book title for book title ID
+	  titlesList.append(row[1])
+	  row[1] = IDs[row[1]]
+
+	with open("tfidf-scores.csv", "wb") as f:   #see if this overwrite the old one. Ideally it would. If not we can give it a new neame.
+	    writer = csv.writer(f)
+	    writer.writerows(data)
 
 # - - - - - - - - - - - - - - - - - - - - SCRIPT STARTS HERE - - - - - - - - - - - - - - - - - - - - #
 tfRes = TFIDF(sys.argv[1],sys.argv[2])
-tfRes.run()
-#/Users/jamesledoux/spark-1.6.1/bin/spark-submit /Users/jamesledoux/Documents/BigData/gutenberg/tfidf.py "/Users/jamesledoux/Documents/txt_small2/" "/Users/jamesledoux/Documents/BigData/gutenberg/TFIDF Output"
+IDs = tfRes.run()   #gets ids and does tf-idfs
+reformat(IDs)   #reformats the output
+#/Users/jamesledoux/spark-1.6.1/bin/spark-submit /Users/jamesledoux/Documents/BigData/gutenberg/tfidf.py "/Users/jamesledoux/Documents/txt_small/" "/Users/jamesledoux/Documents/BigData/gutenberg/TFIDF Output"

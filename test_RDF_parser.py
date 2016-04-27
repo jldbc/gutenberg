@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 import requests
 import urllib2
+from clean_from_web import strip_headers
 
 def get_URLs():
 	############ Enter your filepath here ############
@@ -10,8 +11,9 @@ def get_URLs():
 
 	urls = []
 	limit = 51837
-	limit_small = 1000
+	limit_small = 100
 	files = []
+	file_lang = []
 	# for x in range(limit):
 	for x in range(limit_small):
 		file = filepath + "/" +  str(x) + "/pg" + str(x) + ".rdf"
@@ -24,13 +26,29 @@ def get_URLs():
 		tree = ET.parse(file)
 		root = tree.getroot()
 		listURLs = []
+################################################
+		# for country in root.findall('country'):
+		# 	rank = country.find('rank').text
+		# 	name = country.get('name')
+		# 	print name, rank
+################################################
+		# l = root.find('datatype="http://purl.org/dc/terms/RFC4646"').text
+################################################
+		# l = root.find('{http://purl.org/dc/terms/RFC4646}hasFormat')
+		# print "Lang = ", l
+
+		#   # for thing in child:
+		#   #   if thing.tag == "{http://purl.org/dc/terms/RFC4646}hasFormat":
+		#   #   	for something in thing:
+		#   #   		print "Lang: ", something.attrib
+
 		for child in root:
 		  for thing in child:
 		    if thing.tag == "{http://purl.org/dc/terms/}hasFormat":
 		      for something in thing:
 		      	if "utf-8" in something.attrib.values()[0]:
 		      		urls.append(something.attrib.values()[0])
-		        listURLs.append(something.attrib.values()[0])
+		        #listURLs.append(something.attrib.values()[0])
 		##########################################
 		# Deprecated
 		# Look at each element of listURLs to find substring
@@ -39,6 +57,9 @@ def get_URLs():
 		# 		urls.append(listURLs[i])
 		##########################################
 	#print "These are the urls: \n", urls
+		# print listURLs
+		# print "\nfile Lang: ", file_lang
+	print urls
 	return urls
 
 def retrieve_file():
@@ -48,10 +69,13 @@ def retrieve_file():
 	#     print line
 	for x in range(5):
 		num = 5 + x
-		data = urllib2.urlopen(urls[num])
+		#data = urllib2.urlopen(urls[num])
+		data = requests.get(urls[num])
+		data = strip_headers(data)
 		file_name = "Output_" + str(x) + ".txt"
 		with open(file_name, "w") as file:
 			for line in data:
 				file.write(line)
 
+#get_URLs()
 retrieve_file()

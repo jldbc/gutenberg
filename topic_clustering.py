@@ -79,7 +79,7 @@ for i in books:
     print "book id " + str(i[0]) + " predicted as a member of cluster "  + str(label)
 
 
-other_data = pd.read_csv("/Users/jamesledoux/Documents/BigData/gutenberg/output.csv")  #this will probably be called something else for you guys. I had too many things named output earlier
+other_data = pd.read_csv("/Users/jamesledoux/Documents/gutenberg/output.txt", sep='|')  #this will probably be called something else for you guys. I had too many things named output earlier
 other_data['cluster_membership'] = -9999
 for key, value in clusterDict.items():
     other_data.loc[other_data.ID == key, 'cluster_membership'] = value

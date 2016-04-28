@@ -22,7 +22,7 @@ table = string.maketrans("","")
 target = open("output.txt", 'w')
 
 #check avg sent size
-target.write("book_name|total_words|avg_sentence_size|!|#|''|%|$|&|')'|(|+|*|-|,|/|.|;|:|=|<|?|>|@|[|]|\|_|^|`|{|}|~|neg|neu|pos|compound|ID")
+target.write("book_name|total_words|avg_sentence_size|!|#|''|%|$|&|')'|(|+|*|-|,|/|.|;|:|=|<|?|>|@|[|]|\|_|^|`|{|}|~|neg|neu|pos|compound|ID|")
 target.write('\n')
 
 def ensure_unicode(v):

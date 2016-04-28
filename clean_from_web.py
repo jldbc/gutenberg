@@ -108,7 +108,7 @@ def strip_headers(text):
     Returns:
         unicode: The text with any non-text content removed.
     """
-    lines = text.splitlines()
+    #lines = text.splitlines()
     sep = str(os.linesep)
 
     out = []
@@ -116,12 +116,13 @@ def strip_headers(text):
     footer_found = False
     ignore_section = False
 
-    for line in lines:
+    for line in text:
         reset = False
+        new_line = str(line)
 
         if i <= 600:
             # Check if the header ends here
-            if any(line.startswith(token) for token in TEXT_START_MARKERS):
+            if any(new_line.startswith(token) for token in TEXT_START_MARKERS):
                 reset = True
 
             # If it's the end of the header, delete the output produced so far.
@@ -133,25 +134,27 @@ def strip_headers(text):
 
         if i >= 100:
             # Check if the footer begins here
-            if any(line.startswith(token) for token in TEXT_END_MARKERS):
+            if any(new_line.startswith(token) for token in TEXT_END_MARKERS):
                 footer_found = True
 
             # If it's the beginning of the footer, stop output
             if footer_found:
                 break
 
-        if any(line.startswith(token) for token in LEGALESE_START_MARKERS):
+        if any(new_line.startswith(token) for token in LEGALESE_START_MARKERS):
             ignore_section = True
             continue
-        elif any(line.startswith(token) for token in LEGALESE_END_MARKERS):
+        elif any(new_line.startswith(token) for token in LEGALESE_END_MARKERS):
             ignore_section = False
             continue
 
         if not ignore_section:
-            out.append(line.rstrip(sep))
+            out.append(new_line.rstrip(sep))
+            #out.append(line.rstrip('\n'))
             i += 1
 
     return sep.join(out)
+    #return out
 
 
 def _main():

@@ -11,9 +11,10 @@ import pandas as pd
 import string
 import csv
 import sys
+from datetime import datetime
 import os
 
-
+startTime = datetime.now()
 #need this or else it throws encoding/decoding errors
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -27,8 +28,9 @@ target.write('\n')
 
 def ensure_unicode(v):
     #if isinstance(v, str):
-    v = v.decode('utf-8')
-    return unicode(v)
+    v = v.decode('utf-8', errors='ignore')
+    #return unicode(v)
+    return v
 
 def punctAndWordsInSentence(listOfCharacters):
     punctuation_dict = {}
@@ -38,7 +40,6 @@ def punctAndWordsInSentence(listOfCharacters):
     avgSentenceSize = 0;
     totalWords = 0;
     punctCounter = 0;
-
     """
     Iterate through all characters. Count periods, punct frequencies. WordCounter = words in sentence (resets
     to zero after a period). totalWords is the book's total word count.
@@ -56,9 +57,7 @@ def punctAndWordsInSentence(listOfCharacters):
                 punctuation_dict[i] = punctuation_dict[i]+1
             else:
                 punctuation_dict[i] = 1
-
     avgSentenceSize = (totalWords/periodCounter)
-
     #put together output, bar delimited
     target.write(str(totalWords) + "|")
     target.write(str(avgSentenceSize) + "|")
@@ -72,7 +71,7 @@ def punctAndWordsInSentence(listOfCharacters):
 
 
 def decode_file(text):
-    return text.decode('utf-8')
+    return text.decode('utf-8', errors='replace')
 
 def get_sentiment(temp):
     #data['sentiment_negative'] = 999999
@@ -93,9 +92,9 @@ def get_sentiment(temp):
     valuearray = np.array(booksent)
     # mean negative, neutral, positive, compound score for all lines in book
     values = np.mean(valuearray, axis=0)
-    print " "
-    print "Sentiment scores for book " #+ str(counter) + ": " + str(book)
-    print "neg: " + str(values[0]) + "  neu: " + str(values[1]) + "  pos: " + str(values[2]) + "  compound: " + str(values[3])
+    #print " "
+    #print "Sentiment scores for book " #+ str(counter) + ": " + str(book)
+    #print "neg: " + str(values[0]) + "  neu: " + str(values[1]) + "  pos: " + str(values[2]) + "  compound: " + str(values[3])
     return values
 
     #with open("sentiments/" + book[:-4] + ".csv", 'w') as f:
@@ -114,10 +113,10 @@ def preprocessing():
     save global word dict after finished looping through docs
     '''
     counter = 0
-    for book in os.listdir("/Users/jamesledoux/Documents/txt_small"):
+    for book in os.listdir("/Users/jamesledoux/Downloads/txt"):
         if not book.startswith('.'):    #pass hidden files such as .DS_STORE
             book = str(book)
-            with open("/Users/jamesledoux/Documents/txt_small/" + book, 'rb') as f:
+            with open("/Users/jamesledoux/Downloads/txt/" + book, 'rb') as f:
                 content = f.read().rstrip('\n')
             target.write(book + "|")
             punctAndWordsInSentence(content)
@@ -134,6 +133,8 @@ def preprocessing():
             target.write('\n')
             f.close()
             counter += 1
-            print "book " + str(counter) + " done: " + book
+            #print "book " + str(counter) + " done: " + book
 
 preprocessing()
+print datetime.now() - startTime
+

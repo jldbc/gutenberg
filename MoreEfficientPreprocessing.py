@@ -133,6 +133,8 @@ def preprocessing():
             target.write('\n')
             f.close()
             counter += 1
+            if counter%100 == 0:
+                print counter
             #print "book " + str(counter) + " done: " + book
 
 preprocessing()

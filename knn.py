@@ -1,3 +1,6 @@
+######################################
+#			 Current Version		 #
+######################################
 import numpy as np
 import pandas as pd 
 import sys
@@ -50,6 +53,8 @@ data = data.drop('@', 1)
 data = data.drop('_', 1)
 data = data.drop('^', 1)
 
+
+
 # data = pd.concat([data, pd.get_dummies(data['Cluster'])], axis=1)
 data = pd.concat([data, pd.get_dummies(data['smallClusterId'], prefix="general")], axis=1)  #and for each cluster
 data = pd.concat([data, pd.get_dummies(data['mediumClusterId'], prefix="medium")], axis=1) 
@@ -69,24 +74,33 @@ data = data.drop('author', 1)
 data = data.drop('filename', 1)
 data = data.fillna(0)
 
+
 scaler = MinMaxScaler()
 data = pd.DataFrame(scaler.fit_transform(data), columns=data.columns)
+# data.to_csv("Normalized output.csv")
 data['ID'] = IDs  #had to remove this earlier because we didn't want IDs to be scaled with the other columns 
+
 print("Completed in %.3f seconds..." % (time.time() - start_time))
 
 status = "*********** Finding Recommendations ***************"
 print status
 start_time = time.time()
 
+example = data[data['ID']==id_target]
+example = example.drop('ID', 1)
+data = data.drop('ID', 1)
+
+
 neigh = NearestNeighbors(5)
 neigh = neigh.fit(data)
 
-example = data[data['ID']==id_target]
-# print "example ", example
+
+
+print "example ", example
 output = neigh.kneighbors(example, 15)
 a = output[0]
 b = output[1]
-# print "Distance ", a
+print "Distance ", a
 # print "Nearest Neighbor ", b
 b = b.tolist()
 b = b[0]

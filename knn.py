@@ -96,11 +96,11 @@ neigh = neigh.fit(data)
 
 
 
-print "example ", example
+# print "example ", example
 output = neigh.kneighbors(example, 15)
 a = output[0]
 b = output[1]
-print "Distance ", a
+# print "Distance ", a
 # print "Nearest Neighbor ", b
 b = b.tolist()
 b = b[0]

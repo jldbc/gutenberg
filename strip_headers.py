@@ -8,8 +8,8 @@ stop_list = ("*** END OF", "***END OF", "End of the Project")
 
 
 
-directory = "/Users/jamesledoux/Documents/gutenberg_big_data/"
-outputdir = "/Users/jamesledoux/Documents/gutenberg_big_data_better"
+directory = "/Users/jamesledoux/Documents/James/"
+outputdir = "/Users/jamesledoux/Documents/james_better"
 for book in os.listdir(directory):
   if not book.startswith("."):
     with open(directory + book) as f:

@@ -113,10 +113,10 @@ def preprocessing():
     save global word dict after finished looping through docs
     '''
     counter = 0
-    for book in os.listdir("/Users/jamesledoux/Downloads/txt"):
+    for book in os.listdir("/Users/jamesledoux/Documents/James"):
         if not book.startswith('.'):    #pass hidden files such as .DS_STORE
             book = str(book)
-            with open("/Users/jamesledoux/Downloads/txt/" + book, 'rb') as f:
+            with open("/Users/jamesledoux/Documents/James/" + book, 'rb') as f:
                 content = f.read().rstrip('\n')
             target.write(book + "|")
             punctAndWordsInSentence(content)
@@ -133,7 +133,7 @@ def preprocessing():
             target.write('\n')
             f.close()
             counter += 1
-            if counter%100 == 0:
+            if counter%200 == 0:
                 print counter
             #print "book " + str(counter) + " done: " + book
 

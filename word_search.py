@@ -3,35 +3,30 @@ import sys, re
 import numpy as np
 from random import random
 from operator import add
-from pyspark import SparkContext, SparkConf
-from pyspark.mllib.feature import HashingTF
-from pyspark.mllib.feature import IDF
-from pyspark.mllib.linalg import SparseVector
-from pyspark.mllib.clustering import KMeans, KMeansModel
-from pyspark.mllib.linalg import SparseVector
 import os
 
-sc = SparkContext(appName="Python")
+#load in content
+#should probably do some stemming here
+documents = []
 docsDir = "/Users/jamesledoux/Documents/james"
-#outputPath = sys.argv[2]
-#print docsDir, outputPath
-files = sc.wholeTextFiles(docsDir)
-names = files.keys().toLocalIterator()
+for book in os.listdir(docsDir):
+	if not book.startswith('.'):    #pass hidden files such as .DS_STORE
+		book = str(book) #file name
+		with open("/Users/jamesledoux/Documents/james/" + book, 'rb') as f:
+			content = f.read() #.splitlines()
+			content = unicode(content, errors='replace')
+			documents.append(content)
 
-#should probably do some stemming, set to lowercase before or right after here 
-documents = files.values()
 
 tfidf = TfidfVectorizer(max_df=0.9,
                         ngram_range=(1, 1),
                         stop_words='english',
                         strip_accents='unicode', analyzer = 'word')
 
-texts = documents #keep tihs separate for retrieving individual texts in title/author grabbing
-documents = documents.toLocalIterator()
+#documents = documents.toLocalIterator()
 tfidf_matrix =  tfidf.fit_transform(documents)
 
 feature_names = tfidf.get_feature_names() 
-dense = tfidf_matrix
 
 #get names of books and authors from files
 title_author_store = []
@@ -55,10 +50,10 @@ for book in os.listdir(docsDir):
 
 #populate database
 database = {}
-#for i in range(len(dense)):
-for i in range(dense.shape[0]):
-	episode = dense[i].toarray()[0]
-	phrase_scores = [pair for pair in zip(range(0, len(episode)), episode) if pair[1] > 0]
+for i in range(tfidf_matrix.shape[0]):
+	doc = tfidf_matrix[i].toarray()[0]
+	#currently using 1-grams, but potential for use of n-grams with phrases here
+	phrase_scores = [pair for pair in zip(range(0, len(doc)), doc) if pair[1] > 0]
 	#get top results 
 	sorted_phrase_scores = sorted(phrase_scores, key=lambda t: t[1] * -1)
 	#create dict of {word: score} for fast lookups
@@ -93,6 +88,6 @@ def search(term):
 		author = results[i][0][1]
 		print str(title) + " by " + str(author) + ": " + str(results[i][1])
 
-query = str(raw_input("Search Query: "))
+query = str(raw_input("Search Query (no quotes please): ")).lower()
 search(query)
 

@@ -1,35 +1,29 @@
 from __future__ import division
 from nltk.stem.snowball import *
-from nltk.classify import NaiveBayesClassifier
-from nltk.corpus import subjectivity
-from nltk.sentiment import SentimentAnalyzer
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.sentiment.util import *
 from nltk import tokenize
+from datetime import datetime
 import numpy as np
-import pandas as pd
 import string
 import csv
 import sys
-from datetime import datetime
 import os
 
 startTime = datetime.now()
 #need this or else it throws encoding/decoding errors
 reload(sys)
 sys.setdefaultencoding('utf8')
-punct = set(['!', '#', '"', '%', '$', '&', ')', '(', '+', '*', '-', ',', '/', '.', ';', ':', '=', '<', '?', '>', '@', '[', ']', '\\', '_', '^', '`', '{', '}', '~'])
+punct = set(['!', '#', '"', '%', '$', '&', '(', '+', '*', '-', ',', '/', '.', ';', ':', '=', '<', '?', '>', '@', '[', ']', '_', '^', '`', '{', '~'])
 table = string.maketrans("","")
 target = open("output.txt", 'w')
 
 #check avg sent size
-target.write("book_name|total_words|avg_sentence_size|!|#|''|%|$|&|')'|(|+|*|-|,|/|.|;|:|=|<|?|>|@|[|]|\|_|^|`|{|}|~|neg|neu|pos|compound|ID|")
+target.write("book_name|total_words|avg_sentence_size|!|#|''|%|$|&|')'|(|+|*|-|,|/|.|;|:|=|<|?|>|@|[|]|\|_|^|`|{|}|~|neg|neu|pos|compound|ID|Title|Author|")
 target.write('\n')
 
 def ensure_unicode(v):
-    #if isinstance(v, str):
     v = v.decode('utf-8', errors='ignore')
-    #return unicode(v)
     return v
 
 def punctAndWordsInSentence(listOfCharacters):
@@ -67,22 +61,35 @@ def punctAndWordsInSentence(listOfCharacters):
             s = s + str(punctuation_dict[i] / punctCounter) + "|"    #pct of punct that is [x]
         else:
             s = s + str(0) + "|"                                     #0 if unused
-    target.write(s)
+        target.write(s)
 
 
 def decode_file(text):
     return text.decode('utf-8', errors='replace')
 
+def get_title_author(text):
+    author = "NULL"
+    title = "NULL"
+    text = text.splitlines()
+    #for line in text, check if title or author stored there
+    for i in range(80):
+        if "Title: " in text[i]:
+            title = text[i][7:]
+        if "Author: " in text[i]:
+            author = text[i][8:]
+        #if they have both been found, do not waste extra time iterating 
+        if title != "NULL" and author != "NULL":
+            title_author_tuple = (title, author)
+            return title_author_tuple
+    title_author_tuple = (title, author)
+    return title_author_tuple
+
 def get_sentiment(temp):
-    #data['sentiment_negative'] = 999999
-    #data['sentiment_neutral'] = -999999
-    #data['sentiment_positive'] = -999999
-    #data['sentiment_compound'] = 0
-    #data['ID'] = -999999
     temp = temp.replace('\n', '')
     temp = temp.replace('\r', '')
     content = decode_file(temp)
     content = tokenize.sent_tokenize(content)
+    #get author and title now that content is split by sentence 
     sid = SentimentIntensityAnalyzer()
     booksent = []
     for sentence in content:
@@ -92,17 +99,7 @@ def get_sentiment(temp):
     valuearray = np.array(booksent)
     # mean negative, neutral, positive, compound score for all lines in book
     values = np.mean(valuearray, axis=0)
-    #print " "
-    #print "Sentiment scores for book " #+ str(counter) + ": " + str(book)
-    #print "neg: " + str(values[0]) + "  neu: " + str(values[1]) + "  pos: " + str(values[2]) + "  compound: " + str(values[3])
     return values
-
-    #with open("sentiments/" + book[:-4] + ".csv", 'w') as f:
-    #    f.write(str(values[0]) + ", " + str(values[1]) + ", " + str(values[2]) + ", " + str(values[3]))
-    #f.close()
-
-    #data.to_csv('/Users/jamesledoux/Documents/BigData/gutenberg/output.csv')
-
 
 def preprocessing():
     '''
@@ -113,10 +110,10 @@ def preprocessing():
     save global word dict after finished looping through docs
     '''
     counter = 0
-    for book in os.listdir("/Users/jamesledoux/Documents/James"):
+    for book in os.listdir("/Users/jamesledoux/Documents/james"):
         if not book.startswith('.'):    #pass hidden files such as .DS_STORE
             book = str(book)
-            with open("/Users/jamesledoux/Documents/James/" + book, 'rb') as f:
+            with open("/Users/jamesledoux/Documents/james/" + book, 'rb') as f:
                 content = f.read().rstrip('\n')
             target.write(book + "|")
             punctAndWordsInSentence(content)
@@ -126,6 +123,8 @@ def preprocessing():
             pos = sentiment_values[2]
             compound = sentiment_values[3]
             target.write(str(neg) + "|" + str(neu) + "|" + str(pos) + "|" + str(compound) + "|" + str(counter) + "|")
+            title_author_tuple = get_title_author(content)
+            target.write(str(title_author_tuple[0]) + "|" + str(title_author_tuple[1]) + "|")
             content = content.translate(table, string.punctuation)
             content = ensure_unicode(content)
             content = content.decode("utf-8")
@@ -133,9 +132,8 @@ def preprocessing():
             target.write('\n')
             f.close()
             counter += 1
-            if counter%200 == 0:
-                print counter
-            #print "book " + str(counter) + " done: " + book
+            if counter%20 == 0:
+                print "book " + str(counter) + " done: " + book
 
 preprocessing()
 print datetime.now() - startTime

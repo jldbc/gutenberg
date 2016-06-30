@@ -73,14 +73,17 @@ def get_title_author(text):
     text = text.splitlines()
     #for line in text, check if title or author stored there
     for i in range(80):
-        if "Title: " in text[i]:
-            title = text[i][7:]
-        if "Author: " in text[i]:
-            author = text[i][8:]
-        #if they have both been found, do not waste extra time iterating 
-        if title != "NULL" and author != "NULL":
-            title_author_tuple = (title, author)
-            return title_author_tuple
+        try:
+            if "Title: " in text[i]:
+                title = text[i][7:]
+            if "Author: " in text[i]:
+                author = text[i][8:]
+            #if they have both been found, do not waste extra time iterating 
+            if title != "NULL" and author != "NULL":
+                title_author_tuple = (title, author)
+                return title_author_tuple
+        except:
+            pass
     title_author_tuple = (title, author)
     return title_author_tuple
 
@@ -110,10 +113,10 @@ def preprocessing():
     save global word dict after finished looping through docs
     '''
     counter = 0
-    for book in os.listdir("/Users/jamesledoux/Documents/james"):
+    for book in os.listdir("/Users/jamesledoux/Documents/James"):
         if not book.startswith('.'):    #pass hidden files such as .DS_STORE
             book = str(book)
-            with open("/Users/jamesledoux/Documents/james/" + book, 'rb') as f:
+            with open("/Users/jamesledoux/Documents/James/" + book, 'rb') as f:
                 content = f.read().rstrip('\n')
             target.write(book + "|")
             punctAndWordsInSentence(content)

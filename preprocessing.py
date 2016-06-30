@@ -19,7 +19,7 @@ table = string.maketrans("","")
 target = open("output.txt", 'w')
 
 #check avg sent size
-target.write("book_name|total_words|avg_sentence_size|!|#|''|%|$|&|')'|(|+|*|-|,|/|.|;|:|=|<|?|>|@|[|]|\|_|^|`|{|}|~|neg|neu|pos|compound|ID|Title|Author|")
+target.write("book_name|total_words|avg_sentence_size|!|#|''|%|$|&|(|+|*|-|,|/|.|;|:|=|<|?|>|@|[|]|_|^|`|{|~|neg|neu|pos|compound|ID|Title|Author|")
 target.write('\n')
 
 def ensure_unicode(v):
@@ -38,25 +38,31 @@ def punctAndWordsInSentence(listOfCharacters):
     Iterate through all characters. Count periods, punct frequencies. WordCounter = words in sentence (resets
     to zero after a period). totalWords is the book's total word count.
     """
-    for i in listOfCharacters:
-        if i == ' ':
-            wordCounter = wordCounter + 1
-        if i == '.':
-            periodCounter = periodCounter + 1
-            totalWords = totalWords + wordCounter
-            wordCounter = 0
-        if i in punct:
-            punctCounter = punctCounter + 1
-            if i in punctuation_dict:
-                punctuation_dict[i] = punctuation_dict[i]+1
-            else:
-                punctuation_dict[i] = 1
+    #sentence count
+    for i in range(len(listOfCharacters)):
+        if i != 0:
+            #if lettter followed by space or punct, then word count +=1
+            if (listOfCharacters[i] == " " or str(listOfCharacters[i]) in punct) and str(listOfCharacters[i-1]) in (string.ascii_lowercase + string.ascii_uppercase):
+                totalWords = totalWords + 1
+            #count periods as well
+            if listOfCharacters[i] == ".":
+                periodCounter = periodCounter + 1
+            if listOfCharacters[i] in punct:
+                punctCounter = punctCounter + 1
+                if listOfCharacters[i] in punctuation_dict:
+                    punctuation_dict[listOfCharacters[i]] = punctuation_dict[listOfCharacters[i]] + 1
+                else:
+                    punctuation_dict[listOfCharacters[i]] = 1
+
+
+
     avgSentenceSize = (totalWords/periodCounter)
     #put together output, bar delimited
     target.write(str(totalWords) + "|")
     target.write(str(avgSentenceSize) + "|")
-    s = ""
+    
     for i in punct:
+        s = ""
         if i in punctuation_dict:
             s = s + str(punctuation_dict[i] / punctCounter) + "|"    #pct of punct that is [x]
         else:
@@ -73,6 +79,7 @@ def get_title_author(text):
     text = text.splitlines()
     #for line in text, check if title or author stored there
     for i in range(80):
+        #error handling since some texts are <80 lines
         try:
             if "Title: " in text[i]:
                 title = text[i][7:]
@@ -128,10 +135,6 @@ def preprocessing():
             target.write(str(neg) + "|" + str(neu) + "|" + str(pos) + "|" + str(compound) + "|" + str(counter) + "|")
             title_author_tuple = get_title_author(content)
             target.write(str(title_author_tuple[0]) + "|" + str(title_author_tuple[1]) + "|")
-            content = content.translate(table, string.punctuation)
-            content = ensure_unicode(content)
-            content = content.decode("utf-8")
-            content = content.split()
             target.write('\n')
             f.close()
             counter += 1

@@ -186,34 +186,7 @@ print datetime.now() - startTime
 #also need to figure out aggregation for plotting on sentiment data
 
 """
-
-#nltk implementation
-import nltk
-text = "To be, or not to be,--that is the question:-- Whether 'tis nobler in the mind to suffer The slings and arrows of outrageous fortune Or to take arms against a sea of troubles, And by opposing end them?--To die,--to sleep,-- No more;"
-
-text = nltk.word_tokenize(content)  #need to tokenize first
-results = nltk.pos_tag(text)
-
-#dict of {POS: count}
-results_dict = {}
-counter = 0
-for tag in results:
-    token = tag[0]
-    pos = tag[1]
-    counter += 1
-    if pos in results_dict:
-        results_dict[pos] += 1
-    else:
-        results_dict[pos] = 1
-
-#make these scores relative to total tokens to make them comparable across books
-for i in results_dict.keys():
-    results_dict[i] = results_dict[i]/float(counter)
-
-
-target.write("book_name|total_words|avg_sentence_size|!|#|''|%|$|&|(|+|*|-|,|/|.|;|:|=|<|?|>|@|[|]|_|^|`|{|~|neg|neu|pos|compound|ID|Title|Author|")
-
-["CC", "CD", "DT", "EX", "FW", "IN", "JJ", "JJR", "JJS", "LS", "MD", "NN", "NNP", "NNPS", "PDT", "PRP", "PRP$", "RB", "RBR", "RBS", "RP", "VB", "VBD", "VBG",  "VBP", "VBN", "WDT", "VBZ", "WRB", "WP$", "WP" ]
+POS Tagging Key: 
 
 $: dollar
     $ -$ --$ A$ C$ HK$ M$ NZ$ S$ U.S.$ US$

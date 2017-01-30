@@ -1,7 +1,7 @@
 /*
 Note: need to remove non-unicode observations before populating the db.
 Locally I did this by filtering for those characters in excel and dropping those
-rows.
+rows. Put this into the preprocessing script before shipping to web app. 
 */
 CREATE DATABASE gutenberg;
 \connect gutenberg

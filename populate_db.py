@@ -12,10 +12,8 @@ client = MongoClient()
 db = client.bookdb
 posts = db.posts
 
-
 #load in content
 #AI: do stemming before running this part. should improve results.
-
 documents = []
 docsDir = "/Users/jamesledoux/Documents/Drew2"
 for book in os.listdir(docsDir):
@@ -31,6 +29,7 @@ tfidf = TfidfVectorizer(max_df=0.9,
                         ngram_range=(1, 1),
                         stop_words='english',
                         strip_accents='unicode', analyzer = 'word')
+
 
 #documents = documents.toLocalIterator()
 tfidf_matrix =  tfidf.fit_transform(documents)
@@ -57,7 +56,7 @@ for book in os.listdir(docsDir):
 
 
 #populate dict
-#verify: sorting doesn't seem necessary here. can probably save significant time by killing that
+#verify: sorting doesn't seem necessary here. can probably save time by killing that
 database = {}
 for i in range(tfidf_matrix.shape[0]):
 	doc = tfidf_matrix[i].toarray()[0]

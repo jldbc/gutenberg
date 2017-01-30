@@ -1,5 +1,11 @@
 import os
 import time
+
+"""
+Strip the Project Gutenberg legalese from the top and bottom of every document.
+You want to do this because it has nothing to do with the content of the document
+you are analyzing.
+"""
 start_time = time.clock()
 
 start_list = ("*** START OF", "***START OF")
@@ -7,9 +13,9 @@ start_list = ("*** START OF", "***START OF")
 stop_list = ("*** END OF", "***END OF", "End of the Project")
 
 
-
+# update these to your own file names / paths
 directory = "/Users/jamesledoux/Documents/James/"
-outputdir = "/Users/jamesledoux/Documents/james_better"
+outputdir = "/Users/jamesledoux/Documents/james_cleaned"
 for book in os.listdir(directory):
   if not book.startswith("."):
     with open(directory + book) as f:

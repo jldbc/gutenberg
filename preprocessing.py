@@ -179,12 +179,6 @@ def preprocessing():
 preprocessing()
 print datetime.now() - startTime
 
-
-####### stanford nltk attempts  #########
-#so this works but I have no idea how t interpret it. Try comparing speed of this to of nltk. see if there is a clear winner there
-#also need to figure out how to do aggregation on this.
-#also need to figure out aggregation for plotting on sentiment data
-
 """
 POS Tagging Key: 
 
